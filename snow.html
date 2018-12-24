@@ -1,0 +1,104 @@
+<html>
+<script>
+	var border = 5;
+	var	defaultSnowflakeLength = 500;
+	var snowflakePartsCount = 8;
+	var defaultSegmentLength = 5;
+	var allowedAngles = [0, 45, 90, 135, 180, 225, 270, 315];
+
+	function randomFromInterval(start, end)
+	{
+		return start + Math.floor(Math.random() * (end - start + 1))	
+	}
+
+	function degreeToRadian(degree)
+	{
+		return (degree * Math.PI) / 180;
+	}
+
+	function clearCanvas()
+		{
+			var canvas = document.getElementById("mainCanvas");
+			var context = canvas.getContext("2d");
+			context.fillStyle = "#000000";
+			context.fillRect(0, 0, canvas.width,canvas.height);
+		}
+
+	function drawBackground()
+	{
+		clearCanvas();
+		var canvas = document.getElementById("mainCanvas");
+		var context = canvas.getContext("2d");		
+		context.fillStyle = "#000000";
+		context.fillRect(border, border, canvas.width - 2 * border, canvas.height - 2 * border);
+		context.strokeStyle = "#00FF00";
+
+	}
+
+	function generateSnowflake(snowflakeLength)
+	{
+		var newSnowflake = new Array();
+		for (var i=0; i < snowflakeLength; i++)
+			newSnowflake[i] = allowedAngles[randomFromInterval(0, 7)];
+		return newSnowflake;
+	}
+
+	function drawSnowflake(snowflake, startX, startY, segmentLength, snowflakeLength)
+	{
+		drawBackground();
+		var currentX = startX;
+		var currentY = startY;
+		var canvas = document.getElementById("mainCanvas");
+		var context = canvas.getContext("2d");
+		context.strokeStyle = "#d7f4fd";
+		context.lineWidth = 1;
+		context.beginPath();
+		context.moveTo(currentX, currentY);
+		for (var part = 0; part < snowflakePartsCount; part++)
+		{
+			for (segment = 0; segment < snowflakeLength; segment++)
+			{
+				angle = snowflake[segment] + part * 45;
+				currentX = currentX + segmentLength * Math.cos(degreeToRadian(angle));
+				currentY = currentY + segmentLength * Math.sin(degreeToRadian(angle));
+				context.lineTo(currentX, currentY);
+			}
+		}
+		context.stroke();		
+	}
+	
+	var currentSnowflake = new Array();
+	
+	function snowflakeBtn()
+	{
+		segmentCount = parseInt(document.getElementById("segmentCount").value);
+		currentSnowflake = [];
+		currentSnowflake = generateSnowflake(segmentCount);
+		drawSnowflake(
+			currentSnowflake, 
+			parseInt(document.getElementById("startX").value), 
+			parseInt(document.getElementById("startY").value), 
+			parseInt(document.getElementById("segmentLength").value), 
+			segmentCount
+		);
+	}
+</script>
+
+
+<body onload="drawBackground();">
+	<p align="center">
+		<canvas id="mainCanvas" width=1024 height=768
+		</canvas>
+	</p>
+	<p align="center">
+		<input type="button" value="Сгенерировать снежинку (фрактальную)" onclick="snowflakeBtn();">
+		<p align="center">
+		x0: <input type="text" id="startX" size=4 value="512" placeholder="512"> 
+		y0: <input type="text" id="startY" size=4 value="384" placeholder="384"> 
+		Длина сегмента: <input type="text" id="segmentLength" size=4 value="2"> 
+		Количество сегментов: <input type="text" id="segmentCount" size=4 value="15000"> 
+		</p>
+	</p>
+</body>
+
+</html>
